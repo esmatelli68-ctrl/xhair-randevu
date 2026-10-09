@@ -127,7 +127,31 @@ async function resetPassword() {
 
     client.auth.getUser().then(({data}) => {
       showDashboard(data.user);
-    });
+    });       
+client.auth.onAuthStateChange((event, session) => {
+  if (event === "PASSWORD_RECOVERY") {
+    setTimeout(async () => {
+      const newPassword = prompt("Yeni şifreni yaz (en az 8 karakter):");
+
+      if (!newPassword || newPassword.length < 8) {
+        alert("Şifre en az 8 karakter olmalı.");
+        return;
+      }
+
+      const { error } = await client.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) {
+        alert("Hata: " + error.message);
+      } else {
+        alert("Şifren başarıyla değiştirildi!");
+        await client.auth.signOut();
+        window.location.href = "admin.html";
+      }
+    }, 500);
+  }
+});
   </script>
 </body>
 </html>
