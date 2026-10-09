@@ -191,9 +191,10 @@ async function updateAppointment(id, status) {
       message.textContent = "";
     }
 
-    client.auth.getUser().then(({data}) => {
-      showDashboard(data.user);
-    });       
+client.auth.getUser().then(({data}) => {
+  showDashboard(data.user);
+  if (data.user) loadAppointments();
+});         
 client.auth.onAuthStateChange((event, session) => {
   if (event === "PASSWORD_RECOVERY") {
     setTimeout(async () => {
