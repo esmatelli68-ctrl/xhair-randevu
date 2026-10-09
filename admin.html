@@ -67,9 +67,14 @@
     const SUPABASE_KEY =
      "sb_publishable_McvukeA-JxnHfxahU8DlkA_6h4BnQkZ";
 alert("Supabase koduna ulaşıldı");
-    const client = supabase.createClient(
-      SUPABASE_URL, SUPABASE_KEY
-    );alert("Supabase bağlantısı oluşturuldu");
+    let client;
+
+try {
+  client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  alert("Supabase bağlantısı oluşturuldu");
+} catch (error) {
+  alert("Bağlantı hatası: " + error.message);
+}
 
     const message = document.getElementById("message");
 
