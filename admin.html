@@ -1,12 +1,112 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>XHAIR Yönetim Paneli</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XHAIR Yönetim Paneli</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9edf2;
+      margin: 0;
+      padding: 25px;
+      text-align: center;
+    }
+    .panel {
+      max-width: 400px;
+      margin: 70px auto;
+      padding: 30px 20px;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 5px 25px #0001;
+    }
+    h1 { color: #ad4777; }
+    input, button {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px;
+      margin-top: 12px;
+      border-radius: 9px;
+      font-size: 16px;
+    }
+    input { border: 1px solid #ddd; }
+    button {
+      background: #ad4777;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #message { margin-top: 16px; }
+  </style>
 </head>
 <body>
-<h1>XHAIR Yönetim Paneli</h1>
-<p>Yetkili girişi hazırlanıyor.</p>
+  <div class="panel">
+    <h1>XHAIR</h1>
+    <h3>Yönetim Paneli</h3>
+    <div id="login">
+      <input id="email" type="email"
+             placeholder="E-posta adresin">
+      <input id="password" type="password"
+             placeholder="Şifren">
+      <button onclick="login()">Giriş Yap</button>
+    </div>
+    <div id="dashboard" hidden>
+      <h3>Hoş geldiniz</h3>
+      <p>Randevu yönetimi hazırlanıyor.</p>
+      <button onclick="logout()">Çıkış Yap</button>
+    </div>
+    <p id="message"></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL =
+      "https://mirbwrohdojokuxfzkpw.supabase.co";
+
+    const SUPABASE_KEY =
+      "BURAYA_PUBLISHABLE_KEY_YAPISTIR";
+
+    const client = supabase.createClient(
+      SUPABASE_URL, SUPABASE_KEY
+    );
+
+    const message = document.getElementById("message");
+
+    function showDashboard(user) {
+      document.getElementById("login").hidden = !!user;
+      document.getElementById("dashboard").hidden = !user;
+    }
+
+    async function login() {
+      message.textContent = "Giriş kontrol ediliyor...";
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const { data, error } =
+        await client.auth.signInWithPassword({
+          email, password
+        });
+
+      if (error) {
+        message.textContent = "Giriş başarısız: " + error.message;
+        return;
+      }
+
+      message.textContent = "";
+      showDashboard(data.user);
+    }
+
+    async function logout() {
+      await client.auth.signOut();
+      showDashboard(null);
+      message.textContent = "";
+    }
+
+    client.auth.getUser().then(({data}) => {
+      showDashboard(data.user);
+    });
+  </script>
 </body>
 </html>
