@@ -153,10 +153,11 @@ async function loadAppointments() {
     details.textContent =
       `${a.full_name} | ${a.phone} | ${a.service} | ${a.appointment_date} ${a.appointment_time} | Durum: ${a.status}`;
 
-if (a.status === "pending") {
-  card.style.border = "2px solid #d97706";
-  card.style.background = "#fff7ed";
+if (a.status === "approved") {
+  card.style.border = "2px solid #16a34a";
+  card.style.background = "#f0fdf4";
 }
+
 
     card.appendChild(details);
 
