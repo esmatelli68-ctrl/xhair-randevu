@@ -154,7 +154,7 @@ phone: phone,
 })
 .then(async response => {
   if (!response.ok) throw new Error(await response.text());
-  message.textContent="Randevu talebiniz alındı. Salon onayı bekleniyor.";
+message.textContent="✅ Randevunuz başarıyla onaylandı! Sizi XHAIR Güzellik Salonu'nda bekliyoruz.";  
 })
 .catch(error => {
   message.textContent="Randevu gönderilemedi. Lütfen tekrar deneyin.";
