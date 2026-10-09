@@ -111,7 +111,41 @@ option.textContent=value;
 time.appendChild(option);
 }
 }
+async function checkAvailableTimes() {
+  if (!date.value) return;
 
+  const response = await fetch(
+    SUPABASE_URL + "/rest/v1/appointments?select=appointment_time&appointment_date=eq." + date.value + "&status=eq.approved",
+    {
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY
+      }
+    }
+  );
+
+  if (!response.ok) {
+    console.error("Saatler kontrol edilemedi");
+    return;
+  }
+
+  const bookings = await response.json();
+
+  for (const option of time.options) {
+    if (!option.value) continue;
+
+    const count = bookings.filter(
+      booking => booking.appointment_time.slice(0, 5) === option.value
+    ).length;
+
+    option.disabled = count >= 10;
+    option.textContent = count >= 10
+      ? option.value + " - DOLU"
+      : option.value;
+  }
+}
+
+date.addEventListener("change", checkAvailableTimes);
 function showPrice(){
 let selected=service.options[service.selectedIndex];
 document.getElementById("price").textContent=
