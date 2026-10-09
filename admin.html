@@ -54,7 +54,11 @@
     </div>
     <div id="dashboard" hidden>
       <h3>Hoş geldiniz</h3>
-      <p>Randevu yönetimi hazırlanıyor.</p>
+      <h3>Müşteri Randevuları</h3>
+<button onclick="loadAppointments()">Randevuları Yenile</button>
+<div id="appointmentsList">
+  Randevular yükleniyor...
+</div>
       <button onclick="logout()">Çıkış Yap</button>
     </div>
     <p id="message"></p>
@@ -118,7 +122,69 @@ async function resetPassword() {
       message.textContent = "";
       showDashboard(data.user);
     }
+async function loadAppointments() {
+  const list = document.getElementById("appointmentsList");
+  list.textContent = "Randevular yükleniyor...";
 
+  const { data, error } = await client
+    .from("appointments")
+    .select("*")
+    .order("appointment_date", { ascending: true })
+    .order("appointment_time", { ascending: true });
+
+  if (error) {
+    list.textContent = "Hata: " + error.message;
+    return;
+  }
+
+  list.replaceChildren();
+
+  if (!data.length) {
+    list.textContent = "Henüz randevu yok.";
+    return;
+  }
+
+  data.forEach(a => {
+    const card = document.createElement("div");
+    card.style.cssText =
+      "border:1px solid #ddd;padding:12px;margin:12px 0;border-radius:10px;text-align:left;";
+
+    const details = document.createElement("p");
+    details.textContent =
+      `${a.full_name} | ${a.phone} | ${a.service} | ${a.appointment_date} ${a.appointment_time} | Durum: ${a.status}`;
+
+    card.appendChild(details);
+
+    if (a.status === "pending") {
+      const approve = document.createElement("button");
+      approve.textContent = "Onayla";
+      approve.onclick = () => updateAppointment(a.id, "approved");
+
+      const reject = document.createElement("button");
+      reject.textContent = "Reddet";
+      reject.onclick = () => updateAppointment(a.id, "rejected");
+
+      card.append(approve, reject);
+    }
+
+    list.appendChild(card);
+  });
+}
+
+async function updateAppointment(id, status) {
+  const { error } = await client
+    .from("appointments")
+    .update({ status })
+    .eq("id", id);
+
+  if (error) {
+    alert("Hata: " + error.message);
+    return;
+  }
+
+  alert(status === "approved" ? "Randevu onaylandı!" : "Randevu reddedildi.");
+  await loadAppointments();
+}
     async function logout() {
       await client.auth.signOut();
       showDashboard(null);
