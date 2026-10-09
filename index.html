@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xhair Güzellik Salonu | Randevu</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f9f5f2;color:#302626;font-family:Arial,sans-serif}
+header{background:#211a1c;color:white;text-align:center;padding:38px 15px}
+header h1{font-size:34px;letter-spacing:4px;margin:0}
+header p{color:#e7c9ae}
+main{max-width:520px;margin:25px auto;padding:20px}
+.card{background:white;border-radius:18px;padding:24px;box-shadow:0 4px 18px #00000010}
+h2{text-align:center;font-size:23px}
+label{display:block;margin-top:18px;font-weight:bold;font-size:14px}
+input,select{width:100%;padding:14px;margin-top:8px;border:1px solid #ddd;border-radius:9px;font-size:16px;background:white}
+.price{margin-top:10px;color:#98704f;font-weight:bold}
+button{width:100%;background:#211a1c;color:white;border:0;border-radius:10px;padding:17px;font-size:16px;margin-top:25px}
+.note{font-size:13px;color:#777;text-align:center;line-height:1.6}
+footer{text-align:center;padding:25px;color:#777}
+</style>
+</head>
+<body>
+<header>
+<h1>XHAIR</h1>
+<p>GÜZELLİK SALONU</p>
+<p>Online Randevu</p>
+</header>
+<main>
+<div class="card">
+<h2>Randevu Oluştur</h2>
+<p class="note">Hizmetinizi ve size uygun zamanı seçin.</p>
+
+<label>Adınız Soyadınız</label>
+<input id="name" placeholder="Adınız Soyadınız">
+
+<label>Telefon Numaranız</label>
+<input id="phone" type="tel" placeholder="05XXXXXXXXX">
+
+<label>Hizmet Seçiniz</label>
+<select id="service" onchange="showPrice()">
+<option value="">Hizmet seçiniz</option>
+<option value="Fön" data-price="300 TL">Fön</option>
+<option value="Saç Kesimi" data-price="750 TL">Saç Kesimi</option>
+<option value="Kaş Alımı" data-price="300 TL">Kaş Alımı</option>
+<option value="Kaş Bıyık" data-price="300 TL">Kaş Bıyık</option>
+<option value="Altın Oran Kaş" data-price="450 TL">Altın Oran Kaş</option>
+<option value="Kırık Fön" data-price="600 TL">Kırık Fön</option>
+<option value="Tek Renk Boyama" data-price="3000 TL'den başlayan">Tek Renk Boyama</option>
+<option value="Doğal Ombre" data-price="7000 TL'den başlayan">Doğal Ombre</option>
+<option value="İşlemli Ombre" data-price="7500 TL'den başlayan">İşlemli Ombre</option>
+<option value="Işıltı" data-price="7000 TL'den başlayan">Işıltı</option>
+<option value="Dip Boyası" data-price="1500 TL">Dip Boyası</option>
+<option value="Cila" data-price="1500 TL">Cila</option>
+<option value="Doğal Maşa" data-price="1000 TL">Doğal Maşa</option>
+<option value="Gelin Saç Makyaj" data-price="8000 TL (nakit)">Gelin Saç Makyaj</option>
+<option value="Profesyonel Makyaj" data-price="2500 TL">Profesyonel Makyaj (Kirpik Dahil)</option>
+<option value="Saç Tasarım" data-price="1500 TL">Saç Tasarım</option>
+<option value="Türban" data-price="1500 TL">Türban</option>
+<option value="Manikür Pedikür" data-price="1200 TL">Manikür + Pedikür</option>
+<option value="Manikür" data-price="500 TL">Manikür</option>
+<option value="Pedikür" data-price="800 TL">Pedikür</option>
+<option value="Cilt Bakımı" data-price="1000 TL">Cilt Bakımı</option>
+<option value="Keratin" data-price="2500 TL">Keratin</option>
+<option value="Brezilya Fönü" data-price="5000 TL">Brezilya Fönü</option>
+<option value="Davines Nourishing" data-price="3500 TL">Davines Nourishing</option>
+</select>
+<div id="price" class="price"></div>
+
+<label>Randevu Tarihi</label>
+<input id="date" type="date">
+
+<label>Randevu Saati</label>
+<select id="time">
+<option value="">Saat seçiniz</option>
+</select>
+
+<button onclick="requestAppointment()">Randevu Talebi Oluştur</button>
+<p class="note">Randevunuz salon tarafından onaylandıktan sonra kesinleşir.</p>
+<p id="message" class="note" role="status"></p>
+</div>
+</main>
+<footer>XHAIR GÜZELLİK SALONU</footer>
+
+<script>
+const service=document.getElementById("service");
+const date=document.getElementById("date");
+const time=document.getElementById("time");
+const message=document.getElementById("message");
+
+const today=new Date();
+const localToday=[
+today.getFullYear(),
+String(today.getMonth()+1).padStart(2,"0"),
+String(today.getDate()).padStart(2,"0")
+].join("-");
+date.min=localToday;
+
+for(let hour=9;hour<=19;hour++){
+for(let minute of [0,30]){
+let value=String(hour).padStart(2,"0")+":"+
+String(minute).padStart(2,"0");
+let option=document.createElement("option");
+option.value=value;
+option.textContent=value;
+time.appendChild(option);
+}
+}
+
+function showPrice(){
+let selected=service.options[service.selectedIndex];
+document.getElementById("price").textContent=
+selected.dataset.price?"Fiyat: "+selected.dataset.price:"";
+}
+
+function requestAppointment(){
+const name=document.getElementById("name").value.trim();
+const phone=document.getElementById("phone").value.trim();
+if(!name||!/^05[0-9]{9}$/.test(phone)||!service.value||
+!date.value||!time.value){
+message.textContent="Lütfen tüm alanları doğru doldurun.";
+return;
+}
+if(date.value<localToday||
+(date.value===localToday&&time.value<=
+new Date().toTimeString().slice(0,5))){
+message.textContent="Lütfen ileri bir tarih ve saat seçin.";
+return;
+}
+message.textContent="Bu ekran henüz deneme aşamasında. Randevu gönderimi aktif değil.";
+}
+</script>
+</body>
+</html>
